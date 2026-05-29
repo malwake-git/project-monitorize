@@ -30,7 +30,7 @@ The pipeline is:
 
 ## 🛠️ Requirements
 ### 📦 Dependencies (Must Do)
-### Install PyQt6 packe
+### Install PyQt6 package 
 ```bash
 pip install PyQt6
 ```
