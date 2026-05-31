@@ -299,30 +299,6 @@ nwg-displays
   to confirm the device is connected.
 -Touch the android screen after it starts streaming, then in 5 seconds the touch input will get activated.
 
-
-### Linux Host
-
-| Requirement       | Notes                                              |
-|-------------------|----------------------------------------------------|
-| Wayland desktop   | KDE / GNOME / Hyprland tested                      |
-| GStreamer + x264  | See distro steps above                             |
-| PipeWire          | Required for screen capture                        |
-| Python 3          | For scripts & GUI                                  |
-| PyQt6             | `python3-pyqt6` / `python-pyqt6`                   |
-| `adb`             | `android-tools` (Fedora/Arch) or `adb` (Debian)    |
-| `krfb`            | KDE only — virtual monitor creation                |
-| `snegg` + `libei` / `uinput` (hyprland)  | Touch/pen(on RoadMap)       |
-
-### Android Tablet
-
-| Requirement        | Notes                                               |
-|--------------------|-----------------------------------------------------|
-| Android 9+         | Tested on Samsung Galaxy Tab S7 FE                  |
-| USB Debugging      | Enable in Developer Options                         |
-| Monitorize app     | Built from `/android` or downloaded from Releases   |
-| Decent USB cable   | True USB 3.x cable recommended for best USB mode    |
-| 5GHz Wi-Fi (opt.)  | Recommended if using Wi-Fi ADB                      |
-
 ---
 
 ## 🚀 Getting Started
