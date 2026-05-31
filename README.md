@@ -289,7 +289,7 @@ nwg-displays
 
 
 
-### Notes
+### Notes:
 
 - The resolution and FPS set in the Android app must match the desktop app.
 - If the USB device is not detected, make sure `android-tools` is installed and run:
@@ -303,7 +303,7 @@ nwg-displays
 
 ## 🚀 Getting Started
 
-### 1. Clone, build and run (Desktop side)
+### 1. Clone, build and run (Desktop side):
 
 ```bash
 git clone https://github.com/vinnavannewton/ProjectMonitorize.git
@@ -311,7 +311,7 @@ cd ProjectMonitorize
 python3 monitorize_gui.py
 ```
 
-### 2. Android side
+### 2. Android side:
 
 Either:
 
