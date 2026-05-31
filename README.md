@@ -90,7 +90,7 @@ KDE requires `krfb` to create the virtual monitor output:
 sudo dnf install -y krfb
 ```
 
-### GNOME:
+### GNOME(Experimental:
 No extra packages needed. 
 
 ### Hyprland:
@@ -161,7 +161,7 @@ python3 -m pip install --user \
 sudo pacman -S --needed krfb
 ```
 
-### GNOME:
+### GNOME(Experimental:
 No extra packages needed.
 
 ### Hyprland:
@@ -236,7 +236,7 @@ python3 -m pip install --user \
 sudo apt install -y krfb
 ```
 
-### GNOME:
+### GNOME(Experimental:
 No extra packages needed. 
 
 ### Hyprland:
@@ -261,9 +261,6 @@ sudo udevadm control --reload-rules && sudo udevadm trigger
 sudo usermod -aG input $USER
 # Log out and back in for group change to take effect
 ```
-
-
-> **Note:** `xdg-desktop-portal-hyprland` may not be in older Debian/Ubuntu repos. If not found, build from source: [xdg-desktop-portal-hyprland](https://github.com/hyprwm/xdg-desktop-portal-hyprland)
 
 ---
 
@@ -306,8 +303,8 @@ nwg-displays
 ### 1. Clone, build and run (Desktop side):
 
 ```bash
-git clone https://github.com/vinnavannewton/ProjectMonitorize.git
-cd ProjectMonitorize
+git clone https://github.com/vinnavannewton/project-monitorize.git
+cd project-monitorize
 python3 monitorize_gui.py
 ```
 
