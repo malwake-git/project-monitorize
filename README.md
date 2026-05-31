@@ -8,7 +8,7 @@
 </div>
 
 > **Project Status: In alpha & Actively Being Developed**
-> Core pipeline is fully functional and tested on the latest Fedora KDE  and Arch hyprland.
+> Core pipeline is fully functional and tested on the latest Fedora KDE  and Arch hyprland.(gnome is experimental)
 
 ---
 
