@@ -292,13 +292,11 @@ nwg-displays
 ### Notes
 
 - The resolution and FPS set in the Android app must match the desktop app.
-- 
 - If the USB device is not detected, make sure `android-tools` is installed and run:
   ```bash
   adb devices
   ```
   to confirm the device is connected.
--
 -Touch the android screen after it starts streaming, then in 5 seconds the touch input will get activated.
 
 
