@@ -268,15 +268,26 @@ sudo usermod -aG input $USER
 ---
 
 ## Running the Application
+For hyprland create a virtual display using 
+```bash
+hyprctl output create headless
+```
 
+Then configure the display using
+```bash
+nwg-displays
+```
+### Steps:
 1. From the project repository, go into the `linux` directory and run `monitor_gui.py`.
 2. enable usb debuuging and connect your android to your pc via usb.
 3. in the desktop app click usb then click "i have connected"
 4. Then open the android app and first configure settings use ur native resolution and fps for best experience
 5. click receive on android app then click Start streaming on desktop app (order is important)
 6. When the input access pop-up appears, allow it first.
-7. From the second pop-up, select the **Tablet Virtual Display**.
+7. From the second pop-up, select the **Tablet Virtual Display** (in gnome and kde), for hyrpland choose **headless** display .
 8. After that goto your display configuration settings and setup your second display.
+
+
 
 ### Notes
 
