@@ -337,7 +337,7 @@ Or:
 - [x] desktop GUI.
 - [x] Touch screen.(kde only for now, gnome and hyprland is WIP)
 - [ ] Stylus support.
-- [ ] Stable Wi-Fi mode.
+- [ ] Wi-Fi mode.
 - [ ] Flathub distribution.
 - [ ] use your other laptop as second screen for your host laptop.
 - [ ] Triple monitor setup.
