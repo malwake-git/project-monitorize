@@ -291,7 +291,6 @@ sudo usermod -aG input $USER
 -Touch the android screen after it starts streaming, then in 5 seconds the touch input will get activated.
 
 
-
 ### Linux Host
 
 | Requirement       | Notes                                              |
@@ -354,7 +353,7 @@ Or:
 - [x] Stable CPU-based H.264 pipeline (Linux → Android).
 - [x] Fix TCP chunking / macroblock corruption.
 - [x] desktop GUI.
-- [x] Touch screen.
+- [x] Touch screen.(kde only for now, gnome and hyprland is WIP)
 - [ ] Stylus support.
 - [ ] Stable Wi-Fi mode.
 - [ ] Flathub distribution.
