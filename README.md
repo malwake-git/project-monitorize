@@ -268,7 +268,7 @@ sudo usermod -aG input $USER
 ---
 
 ## Running the Application
-For hyprland create a virtual display using 
+**Note:** For hyprland create a virtual display using 
 ```bash
 hyprctl output create headless
 ```
