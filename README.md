@@ -333,16 +333,17 @@ Or:
 
 ## 🗺️ Roadmap
 
-- [x] Stable CPU-based H.264 pipeline (Linux → Android).
-- [x] Fix TCP chunking / macroblock corruption.
+- [x] Stable IGPU endcoding on host.
+- [x] Fix corrupt pixels.
 - [x] desktop GUI.
-- [x] Touch screen.(kde only for now, gnome and hyprland is WIP)
+- [x] Touch screen.(kde only for now,gnome and hyprland is coming in the very next update)
+- [ ] Stable on gnome.
+- [ ] Wi-Fi mode(coming in the very next update).
 - [ ] Stylus support.
-- [ ] Wi-Fi mode.
-- [ ] Flathub distribution.
-- [ ] use your other laptop as second screen for your host laptop.
-- [ ] Triple monitor setup.
-- [ ] multi monitor single desktop.
+- [ ] laptop as reciever.
+- [ ] Flatpak.
+- [ ] multi monitor setup.
+- [ ] multi monitor single desktop(video wall).
 
 ---
 
