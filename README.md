@@ -15,6 +15,7 @@
 ## 📖 Overview
 
 **Monitorize** turns your Android tablet into a secondary monitor for your Linux desktop.
+
 Currently working on kde,hyprland, gnome(highly experimental) and tested on fedora, arch.
 
 The pipeline is:
