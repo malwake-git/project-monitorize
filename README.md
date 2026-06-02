@@ -15,6 +15,7 @@
 ## 📖 Overview
 
 **Monitorize** turns your Android tablet into a secondary monitor for your Linux desktop.
+Currently working on kde,hyprland, gnome(highly experimental) and tested on fedora, arch.
 
 The pipeline is:
 
@@ -280,8 +281,8 @@ nwg-displays
 3. in the desktop app click usb then click "i have connected"
 4. Then open the android app and first configure settings use ur native resolution and fps for best experience
 5. click receive on android app then click Start streaming on desktop app (order is important)
-6. When the input access pop-up appears, allow it first.
-7. From the second pop-up, select the **Tablet Virtual Display** (in gnome and kde), for hyrpland choose **headless** display .
+6. When the input access pop-up appears, allow it first.(in kde only for now)
+7. From the second pop-up, select the **Tablet Virtual Display** (in kde), for hyrpland choose **headless** display .
 8. After that goto your display configuration settings and setup your second display.
 
 
