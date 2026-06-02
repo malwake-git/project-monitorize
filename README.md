@@ -18,7 +18,6 @@
 
 Currently working on kde,hyprland, gnome(highly experimental) and tested on fedora, arch.
 
-The pipeline is:
 
 ### ✨ What You Get
 
