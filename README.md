@@ -91,7 +91,7 @@ KDE requires `krfb` to create the virtual monitor output:
 sudo dnf install -y krfb
 ```
 
-### GNOME(Experimental:
+### GNOME(Experimental):
 No extra packages needed. 
 
 ### Hyprland:
