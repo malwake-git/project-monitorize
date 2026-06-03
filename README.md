@@ -265,6 +265,33 @@ sudo usermod -aG input $USER
 
 ---
 
+## 🚀 Getting Started
+
+### 1. Clone, build and run (Desktop side):
+
+```bash
+git clone https://github.com/vinnavannewton/project-monitorize.git
+cd project-monitorize
+python3 monitorize_gui.py
+```
+
+### 2. Android side:
+
+Either:
+
+- Build from source:
+  ```bash
+  cd android
+  ./gradlew installDebug
+  adb shell am start -n com.example.monitorize/.MainActivity
+  ```
+
+Or:
+
+- Install the APK from the Releases section.
+
+---
+
 ## Running the Application
 **Note:** For hyprland create a virtual display using 
 ```bash
@@ -295,36 +322,12 @@ nwg-displays
   adb devices
   ```
   to confirm the device is connected.
--Touch the android screen after it starts streaming, then in 5 seconds the touch input will get activated.
+
+- Touch the android screen after it starts streaming, then in 5 seconds the touch input will get activated.
 
 ---
 
-## 🚀 Getting Started
 
-### 1. Clone, build and run (Desktop side):
-
-```bash
-git clone https://github.com/vinnavannewton/project-monitorize.git
-cd project-monitorize
-python3 monitorize_gui.py
-```
-
-### 2. Android side:
-
-Either:
-
-- Build from source:
-  ```bash
-  cd android
-  ./gradlew installDebug
-  adb shell am start -n com.example.monitorize/.MainActivity
-  ```
-
-Or:
-
-- Install the APK from the Releases section.
-
----
 
 ### Wi-Fi Mode (Work In Progress)
 
