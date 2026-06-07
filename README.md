@@ -7,6 +7,8 @@
   
 </div>
 
+> #### This is a project tested on Bazzite OS (Legion Go) w\ Tab S11 Ultra
+
 > **Project Status: In alpha & Actively Being Developed**
 > Core pipeline is fully functional and tested on the latest Fedora KDE  and Arch hyprland.(gnome is experimental)
 

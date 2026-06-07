@@ -23,7 +23,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -484,15 +485,58 @@ class MainActivity : ComponentActivity() {
             showHint = false
         }
 
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        // GStreamer aligns encoded dimensions to H.264 macroblock multiples of 16.
+        // The decoder MUST be initialised with the aligned sizes; otherwise MediaCodec
+        // allocates a buffer of (aligned) size and the output callback crops it into
+        // the (smaller) user-requested surface.
+        val encWidth  = (width  + 15) and 15.inv()
+        val encHeight = (height + 15) and 15.inv()
+
+        // BoxWithConstraints gives us the container dp size SYNCHRONOUSLY during
+        // composition, eliminating the onSizeChanged→surfaceCreated race that caused
+        // the previous Box() approach to compute 0x0 on the first frame.
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black),
+            contentAlignment = Alignment.Center
+        ) {
+            val density = LocalDensity.current
+
+            // Container size in physical pixels (consistent with surfaceCreated px coords)
+            val containerWpx = with(density) { maxWidth.toPx() }
+            val containerHpx = with(density) { maxHeight.toPx() }
+
+            // Aspect ratio of the ENCODED stream (may differ from user-set by 1-15 px)
+            val videoAspect = encWidth.toFloat() / encHeight.toFloat()
+            val contAspect  = if (containerHpx > 0f) containerWpx / containerHpx else videoAspect
+
+            // Largest letterbox/pillarbox rect that fits the video inside the container
+            val (surfaceWdp, surfaceHdp) = with(density) {
+                if (contAspect > videoAspect) {
+                    // Wider container → pillarbox: height fills, width shrinks
+                    Pair((containerHpx * videoAspect).toDp(), maxHeight)
+                } else {
+                    // Taller container → letterbox: width fills, height shrinks
+                    Pair(maxWidth, (containerWpx / videoAspect).toDp())
+                }
+            }
+
+            // Physical-pixel size of the video rect, used by InputEventSender
+            val touchWpx = with(density) { surfaceWdp.toPx() }
+            val touchHpx = with(density) { surfaceHdp.toPx() }
+
             StreamSurface(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .width(surfaceWdp)
+                    .height(surfaceHdp),
                 onSurfaceReady = { sv ->
                     sv.holder.addCallback(object : SurfaceHolder.Callback {
                         override fun surfaceCreated(holder: SurfaceHolder) {
-                            holder.setFixedSize(width, height)
-                            startStream(holder.surface, width, height, fps)
+                            // No setFixedSize — the holder matches the view dp size above.
+                            // Pass aligned dimensions to the decoder so the buffer size
+                            // matches what GStreamer actually encoded.
+                            startStream(holder.surface, encWidth, encHeight, fps, touchWpx, touchHpx)
                         }
                         override fun surfaceChanged(h: SurfaceHolder, f: Int, w: Int, ht: Int) {}
                         override fun surfaceDestroyed(h: SurfaceHolder) { stopStream() }
@@ -500,11 +544,10 @@ class MainActivity : ComponentActivity() {
                 }
             )
 
-            // Touch and pen input overlay — transparent, covers the full screen
+            // Touch/pen overlay — exactly the same size as the video surface
             AndroidView(
                 factory = { ctx ->
                     android.view.View(ctx).apply {
-                        // Ensure the view is fully measurable and active
                         layoutParams = android.view.ViewGroup.LayoutParams(
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -512,16 +555,10 @@ class MainActivity : ComponentActivity() {
                         setBackgroundColor(android.graphics.Color.TRANSPARENT)
                         isClickable = true
                         isFocusable = false
-
-                        // Touch events (fingers and pen-on-screen)
                         setOnTouchListener { _, event ->
-                            if (event.actionMasked == android.view.MotionEvent.ACTION_DOWN) {
-                                android.util.Log.d("ReceiveScreen", "AndroidView setOnTouchListener ACTION_DOWN. inputSender_isNull=${inputSender == null}")
-                            }
                             inputSender?.send(event)
-                            true  // consume the event
+                            true
                         }
-                        // Hover events (pen floating above screen without touching)
                         setOnHoverListener { _, event ->
                             inputSender?.send(event)
                             true
@@ -529,28 +566,30 @@ class MainActivity : ComponentActivity() {
                     }
                 },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .zIndex(2f)  // above the SurfaceView
+                    .width(surfaceWdp)
+                    .height(surfaceHdp)
+                    .zIndex(2f)
             )
 
             // Status overlay
             if (status.isNotEmpty()) {
-                Text(
-                    text = status,
-                    color = GreenAccent,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(24.dp)
-                        .zIndex(1f)
-                        .background(
-                            color = Color(0xAA0C0D14),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                        .clickable { onBack() }
-                )
+                Box(modifier = Modifier.fillMaxSize().zIndex(3f)) {
+                    Text(
+                        text = status,
+                        color = GreenAccent,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(24.dp)
+                            .background(
+                                color = Color(0xAA0C0D14),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                            .clickable { onBack() }
+                    )
+                }
             }
 
             // First-time hint
@@ -582,17 +621,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun startStream(surface: Surface, width: Int, height: Int, fps: Int) {
+    private fun startStream(surface: Surface, width: Int, height: Int, fps: Int,
+                            touchW: Float, touchH: Float) {
         val d = H264Decoder(surface)
         decoder = d
         receiver = StreamReceiver(d, width, height, fps).also {
             it.onStatusChange = { msg -> runOnUiThread { status.value = msg } }
             it.start()
         }
-        val displayMetrics = resources.displayMetrics
+        // Normalise against the physical-px size of the rendered video rect so that
+        // touch/pen coordinates map to the exact same pixels shown on screen.
         inputSender = InputEventSender(
-            screenW = displayMetrics.widthPixels.toFloat(),
-            screenH = displayMetrics.heightPixels.toFloat()
+            screenW = touchW,
+            screenH = touchH
         ).also { it.start() }
     }
 

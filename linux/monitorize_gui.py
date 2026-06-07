@@ -1106,9 +1106,9 @@ class MonitorizeWindow(QMainWindow):
         self._stream_fps    = fps
         self._stream_bitrate = bitrate
 
-        # ---- KDE: start krfb-virtualmonitor first, wait 5 seconds, then launch streamer ----
+        # ---- KDE: start krfb-virtualmonitor, then POLL until it appears ----
         if self.detected_de == "kde":
-            self._page_streaming.set_status("⏳  Starting virtual monitor…  5")
+            self._page_streaming.set_status("⏳  Starting virtual monitor…")
             self.process_krfb = QProcess(self)
             self.process_krfb.setWorkingDirectory(script_dir)
             self.process_krfb.setProcessEnvironment(env)
@@ -1133,26 +1133,97 @@ class MonitorizeWindow(QMainWindow):
                     "--port",       "5900",
                 ],
             )
-            # Begin 5-second countdown before starting the streamer
-            self._countdown = 5
+            # Poll kscreen-doctor every 1 s (up to _VM_WAIT_MAX seconds) until
+            # Virtual-TabletDisplay is registered, then launch the streamer.
+            self._vm_wait_elapsed = 0
+            self._VM_WAIT_MAX     = 5
             self._countdown_timer.start()
         else:
             # GNOME / Hyprland / Sway handle virtual monitors internally
             self._page_streaming.set_status("⏳  Launching streamer…")
             self._launch_streamer()
 
-    def _countdown_tick(self):
-        """Called every 1 s by _countdown_timer. Starts the streamer at 0."""
-        self._countdown -= 1
+    # ------------------------------------------------------------------
+    # KDE virtual-monitor helpers
+    # ------------------------------------------------------------------
 
-        if self._countdown > 0:
-            self._page_streaming.set_status(
-                f"⏳  Starting virtual monitor…  {self._countdown}"
+    def _kde_virtual_monitor_ready(self) -> bool:
+        """Return True once kscreen-doctor reports Virtual-TabletDisplay."""
+        import subprocess, json
+        try:
+            res = subprocess.run(
+                ["kscreen-doctor", "-j"],
+                capture_output=True, text=True, timeout=3,
             )
+            if res.returncode == 0:
+                data = json.loads(res.stdout)
+                for output in data.get("outputs", []):
+                    if output.get("name") == "Virtual-TabletDisplay":
+                        return True
+        except Exception:
+            pass
+        return False
+
+    def _kde_set_monitor_mode(self):
+        """
+        Ask kscreen-doctor to set the virtual monitor to the user-chosen
+        resolution and refresh rate.  Non-fatal: if it fails we just log.
+        """
+        import subprocess
+        w, h   = self._stream_width, self._stream_height
+        fps    = self._stream_fps
+        mode   = f"{w}x{h}@{fps}"
+        try:
+            res = subprocess.run(
+                ["kscreen-doctor", f"output.Virtual-TabletDisplay.mode.{mode}"],
+                capture_output=True, text=True, timeout=5,
+            )
+            if res.returncode == 0:
+                self._page_streaming.append_log(
+                    "KRFB", f"Virtual monitor mode set to {mode}"
+                )
+            else:
+                # Try without the @fps suffix (some KWin builds don't expose the
+                # exact mode name with a fractional-refresh suffix)
+                subprocess.run(
+                    ["kscreen-doctor", f"output.Virtual-TabletDisplay.mode.{w}x{h}"],
+                    capture_output=True, timeout=5,
+                )
+                self._page_streaming.append_log(
+                    "KRFB", f"Mode {mode} not found — fell back to {w}x{h}"
+                )
+        except Exception as exc:
+            self._page_streaming.append_log("KRFB", f"Could not set mode: {exc}")
+
+    def _countdown_tick(self):
+        """
+        Called every 1 s by _countdown_timer (KDE path only).
+        Polls kscreen-doctor for Virtual-TabletDisplay; once found (or after
+        _VM_WAIT_MAX seconds) sets the mode and launches the streamer.
+        """
+        self._vm_wait_elapsed += 1
+
+        if self._kde_virtual_monitor_ready():
+            self._countdown_timer.stop()
+            self._page_streaming.set_status("✅  Virtual monitor ready! Setting mode…")
+            self._kde_set_monitor_mode()
+            # Give KWin ~500 ms to apply the mode change before the portal picker
+            QTimer.singleShot(500, self._launch_streamer)
             return
-        # Countdown finished — stop timer, launch streamer
-        self._countdown_timer.stop()
-        self._launch_streamer()
+
+        if self._vm_wait_elapsed >= self._VM_WAIT_MAX:
+            self._countdown_timer.stop()
+            self._page_streaming.set_status(
+                "⚠️  Virtual-TabletDisplay not detected yet — launching anyway.\n"
+                "    If it doesn't appear in the picker, try stopping and restarting."
+            )
+            self._launch_streamer()
+            return
+
+        remaining = self._VM_WAIT_MAX - self._vm_wait_elapsed
+        self._page_streaming.set_status(
+            f"⏳  Waiting for virtual monitor…  ({remaining} s remaining)"
+        )
 
     def _launch_streamer(self):
         """Spawn the correct DE-specific streamer script as a QProcess."""
